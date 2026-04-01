@@ -7,19 +7,6 @@ app.use(express.json())
 
 // BUSINESSES
 
-// SCHEMA
-// Business name
-// Business street address
-// Business city
-// Business state
-// Business ZIP code
-// Business phone number
-// Business category and subcategories (e.g. category "Restaurant" and subcategory "Pizza")
-// The following information may also optionally be included when a new business is added:
-
-// Business website
-// Business email
-
 var businesses = [
 
     {
@@ -32,7 +19,7 @@ var businesses = [
         category: "Pizza",
         website: "www.pizzameow.com",
         email: "pizzameow@pizzameow.com",
-    }, 
+    },
     {
         name: "Burger Place",
         address: "234 burger st",
@@ -43,73 +30,85 @@ var businesses = [
         category: "Burgers",
         website: "www.ermegherdburgers.com",
         email: "",
-    }, 
+    },
 
 ]
 
+// Helper Functions
+
+// Check if id exists in 'database'
+function valid_id(id) {
+    var index = parseInt(id)
+    if (index >= 0 && index < businesses.length) {
+        return true
+    } else {
+        return false
+    }
+}
+
+// Crappy validation function
+function has_all_fields(business) {
+    if (business.name && business.address &&
+        business.city && business.state &&
+        business.zip && business.phone &&
+        business.category) {
+        return true
+    } else {
+        return false
+    }
+}
 
 // Users get a list of all businesses. This should be paginated
-// METHOD: GET
-// Include all information 
-// /businesses
-
-app.get('/businesses', (req, res, next) =>  {
+app.get('/businesses', (req, res) => {
     res.status(200).send(businesses)
 })
 
 // Users fetch detailed info about a business
-// METHOD: GET
-// Use ID in query params
 // Return all information + reviews + photos
-// /businesses/:id
-
 app.get('/businesses/:id', (req, res) => {
-    var index = parseInt(req.params.id)
-    if (index >= 0 && index < businesses.length) {
-        res.status(200).send(businesses[index])
+    if (valid_id(req.params.id)) {
+        res.status(200).send(businesses[index]) // STILL NEED TO INCLUDE PHOTOS & REVIEWS so cant use array index as id. probably.
     } else {
-        res.status(404).json({
-            err: "Business not found"
+        res.status(400).json({
+            err: "Terrible Request"
         })
     }
 })
 
 // Owners add a business
-// METHOD: POST
-// Include all required fields + 2 optional fields
-// /businesses
 // AUTH? True
-
 app.post("/businesses", (req, res) => {
-    if (req.body && all_fields(req.body)) {
-        // success?
+    if (req.body && has_all_fields(req.body)) {
+        res.status(201).send()
     } else {
-        // not success. 
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
     }
 })
 
 // Owners modify a business they own
-// METHOD: PUT
-// // /businesses/:id
 // AUTH? True
-
 app.put("/businesses/:id", (req, res) => {
-    // validate id exists
-    if (req.body && all_fields(req.body)) {
-        // success
+    if (req.body && valid_id(req.params.id) && has_all_fields(req.body)) {
+        res.status(200).send()
     } else {
-        // not sucess
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
     }
 })
 
 // Owners delete a business they own
-// METHOD: DELETE
-// // /businesses/:id
 // AUTH? True
-
 app.delete("/businesses/:id", (req, res) => {
-    // validate id exists
-    // something here
+    if (valid_id(req.params.id)) {
+        res.status(204).send("Business deleted")
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
 })
 
 // REVIEWS
