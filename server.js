@@ -1,7 +1,7 @@
 
 const express = require('express')
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT || 8000
 
 app.use(express.json())
 
@@ -66,6 +66,7 @@ app.get('/businesses', (req, res) => {
 // Users fetch detailed info about a business
 // Return all information + reviews + photos
 app.get('/businesses/:id', (req, res) => {
+    var index = parseInt(req.params.id)
     if (valid_id(req.params.id)) {
         res.status(200).send(businesses[index]) // STILL NEED TO INCLUDE PHOTOS & REVIEWS so cant use array index as id. probably.
     } else {
