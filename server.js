@@ -1,13 +1,13 @@
 
 const express = require('express')
 const app = express()
-const PORT = process.env.PORT || 8000
+const PORT = 3000
 
 app.use(express.json())
 
 // BUSINESSES
 
-var businesses = [
+const businesses = [
 
     {
         name: "Pizza World",
@@ -30,9 +30,57 @@ var businesses = [
         category: "Burgers",
         website: "www.ermegherdburgers.com",
         email: "",
-    },
-
+    }
 ]
+
+const reviews = [
+    {
+        id: 1,
+        business_id: 0,
+        user_id: 101,
+        stars: 4,
+        dollars: 2,
+        body: "Holy cowabunga."
+    },
+    {
+        id: 2,
+        business_id: 1,
+        user_id: 102,
+        stars: 5,
+        dollars: 3,
+        body: "Maui Wowie."
+    },
+    {
+        id: 3,
+        business_id: 2,
+        user_id: 103,
+        stars: 1,
+        dollars: 1,
+        body: "Worst service of all time hate them."
+    }
+];
+
+const photos = [
+    {
+        id: 1,
+        business_id: 0,
+        url: "https://www.example.com",
+        caption: "Interior seating area"
+    },
+    {
+        id: 2,
+        business_id: 1,
+        url: "https://www.example.com",
+        caption: null
+    },
+    {
+        id: 3,
+        business_id: 2,
+        url: "https://www.example.com",
+        caption: "Front entrance on a busy afternoon"
+    }
+];
+
 
 // Helper Functions
 
@@ -58,6 +106,13 @@ function has_all_fields(business) {
     }
 }
 
+function valid_review(review) {
+    flag = true
+    if (!review.stars || review.stars < 0 || review.stars > 5) flag = false
+    if (!review.dollars || review.dollars < 1 || review.dollars > 4) flag = false
+    return flag
+}
+
 // Users get a list of all businesses. This should be paginated
 app.get('/businesses', (req, res) => {
     res.status(200).send(businesses)
@@ -68,7 +123,14 @@ app.get('/businesses', (req, res) => {
 app.get('/businesses/:id', (req, res) => {
     var index = parseInt(req.params.id)
     if (valid_id(req.params.id)) {
-        res.status(200).send(businesses[index]) // STILL NEED TO INCLUDE PHOTOS & REVIEWS so cant use array index as id. probably.
+        const business = businesses[index]
+        const review = reviews.filter(r => r.business_id === index);
+        const photo = photos.filter(p => p.business_id === index);
+        res.status(200).json({
+            ...business,
+            reviews: review,
+            photos: photo,
+        })
     } else {
         res.status(400).json({
             err: "Terrible Request"
@@ -115,27 +177,31 @@ app.delete("/businesses/:id", (req, res) => {
 // REVIEWS
 
 // Users write review of business
-// METHOD: POST
 // star rating 0-5, dollar sign 1-4, optional written review
 // reviews/:id
 
 app.post("/reviews/:id", (req, res) => {
-    // validate id exists
-    // check if req.body 
-    // validate rating 0-5
-    // validate dollars 1-4
-    // optional reveiw
+    if (req.body && valid_id(req.params.id) && valid_review(req.body)) {
+        res.status(201).send()
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
+
 })
 
 // User modify any review they've written
 // METHOD: PUT
 // reviews/:id
 app.put("/reviews/:id", (req, res) => {
-    // validate id exists
-    // check if req.body 
-    // validate rating 0-5
-    // validate dollars 1-4
-    // optional reveiw
+    if (req.body && valid_id(req.params.id) && valid_review(req.body)) {
+        res.status(201).send()
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
 
 })
 
@@ -143,6 +209,13 @@ app.put("/reviews/:id", (req, res) => {
 // METHOD: DELETE
 // reviews/:id
 app.delete("/reviews/:id", (req, res) => {
+    if (valid_id(req.params.id)) {
+        res.status(204).send("Business deleted")
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
     // validate id exists
 })
 
