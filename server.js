@@ -5,8 +5,6 @@ const PORT = 3000
 
 app.use(express.json())
 
-// BUSINESSES
-
 const businesses = [
 
     {
@@ -119,7 +117,6 @@ app.get('/businesses', (req, res) => {
 })
 
 // Users fetch detailed info about a business
-// Return all information + reviews + photos
 app.get('/businesses/:id', (req, res) => {
     var index = parseInt(req.params.id)
     if (valid_id(req.params.id)) {
@@ -177,9 +174,6 @@ app.delete("/businesses/:id", (req, res) => {
 // REVIEWS
 
 // Users write review of business
-// star rating 0-5, dollar sign 1-4, optional written review
-// reviews/:id
-
 app.post("/reviews/:id", (req, res) => {
     if (req.body && valid_id(req.params.id) && valid_review(req.body)) {
         res.status(201).send()
@@ -192,8 +186,6 @@ app.post("/reviews/:id", (req, res) => {
 })
 
 // User modify any review they've written
-// METHOD: PUT
-// reviews/:id
 app.put("/reviews/:id", (req, res) => {
     if (req.body && valid_id(req.params.id) && valid_review(req.body)) {
         res.status(201).send()
@@ -206,8 +198,6 @@ app.put("/reviews/:id", (req, res) => {
 })
 
 // User may delete any review they've written
-// METHOD: DELETE
-// reviews/:id
 app.delete("/reviews/:id", (req, res) => {
     if (valid_id(req.params.id)) {
         res.status(204).send("Business deleted")
@@ -216,31 +206,51 @@ app.delete("/reviews/:id", (req, res) => {
             err: "Missing Required Fields"
         })
     }
-    // validate id exists
 })
 
 // User may list all reviews they've listed
-// METHOD: GET
-// /reviews
-// app.get("/reviews")
+app.get("/reviews", (req, res) => {
+    res.status(200).send(reviews)
+})
 
 //PHOTOS
 
 // Users upload image files containing photo of existing business
-// Each photo must have an associated caption
-// photos/:id
+app.post("/photos/:id", (req, res) => {
+    if (req.body && valid_id(req.params.id) && req.body.url && req.body.caption) {
+        res.status(201).send()
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
+})
 
 // Users may remove any photo they uploaded
-// METHOD: DELETE
-// photos/:id
-
+app.delete("/photos/:id", (req, res) => {
+    if (valid_id(req.params.id)) {
+        res.status(204).send("Photo deleted")
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
+})
 // Users may modify any photo they uploaded
-// METHOD: PUT
-// photos/:id
+app.put("/photos/:id", (req, res) => {
+    if (req.body && valid_id(req.params.id) && req.body.url && req.body.caption) {
+        res.status(200).send()
+    } else {
+        res.status(400).json({
+            err: "Missing Required Fields"
+        })
+    }
+})
 
 // Users list all photos they uploaded
-// METHOD: GET
-// /photos
+app.get("/photos", (req, res) => {
+    res.status(200).send(photos)
+})
 
 
 app.listen(PORT, () => {
