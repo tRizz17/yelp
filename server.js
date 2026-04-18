@@ -1,7 +1,7 @@
 
 const express = require('express')
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
@@ -194,7 +194,6 @@ app.put("/reviews/:id", (req, res) => {
             err: "Missing Required Fields"
         })
     }
-
 })
 
 // User may delete any review they've written
@@ -236,6 +235,7 @@ app.delete("/photos/:id", (req, res) => {
         })
     }
 })
+
 // Users may modify any photo they uploaded
 app.put("/photos/:id", (req, res) => {
     if (req.body && valid_id(req.params.id) && req.body.url && req.body.caption) {
